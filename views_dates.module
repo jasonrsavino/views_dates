@@ -13,6 +13,16 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
  * @param array $data
  */
 function views_dates_views_data_alter(array &$data) {
+
+  // Add area handler to display links for generic dates.
+  $data['views']['generic_date_links'] = [
+    'title' => t('Generic Date links'),
+    'help' => t('Shows links for generic dates.'),
+    'area' => [
+      'id' => 'generic_date_links',
+    ],
+  ];
+
   // Get all entity types to next handling.
   $entity_types = \Drupal::entityTypeManager()->getDefinitions();
   // Entity types what we're going to skip.
@@ -36,6 +46,20 @@ function views_dates_views_data_alter(array &$data) {
           $table_name = $entity_type->getDataTable() ?: $entity_type->getBaseTable();
           // Field label for next manipulations.
           $base_field_label = (string) $base_field_definition->getLabel();
+
+          // Add generic date argument.
+          $data[$table_name][$base_field_id . '_generic'] = [
+            'title' => t($base_field_label . ' as Generic'),
+            'help' => t($base_field_label . ' in the form of generic format.'),
+            'argument' => [
+              'field' => $base_field_id,
+              'id' => 'views_dates_date_generic',
+            ],
+            'filter' => [
+              'field' => $base_field_id,
+              'id' => 'views_dates_date_generic',
+            ],
+          ];
 
           // Add timestamp specific arguments.
           $data[$table_name][$base_field_id . '_fulldate'] = [
