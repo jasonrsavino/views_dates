@@ -356,6 +356,9 @@ class GenericDate extends FilterPluginBase {
             '#url' => $year_url,
             '#suffix' => '&nbsp;&nbsp;&nbsp;',
           ];
+          if ($this->value['arg_type'] == 'CCYY' && isset($this->value['date']['year']) && $this->value['date']['year'] == $year) {
+            $form[$identifier_filter]['years'][$year]['#attributes']['class'][] = 'active';
+          }
         }
         else {
           $form[$identifier_filter]['years'][$year] = [
@@ -390,10 +393,12 @@ class GenericDate extends FilterPluginBase {
           $form[$identifier_filter]['months'][$month] = [
             '#type' => 'link',
             '#title' => strtoupper(date('M', mktime(0, 0, 0, $month, 1))),
-            //          '#attributes' => ['class' => ['button']],
             '#url' => $month_url,
             '#suffix' => '&nbsp;&nbsp;&nbsp;',
           ];
+          if ($this->value['arg_type'] == 'CCYYMM' && isset($this->value['date']['month']) && $this->value['date']['month'] == $month) {
+            $form[$identifier_filter]['months'][$month]['#attributes']['class'][] = 'active';
+          }
         }
         else {
           $form[$identifier_filter]['months'][$month] = [
@@ -405,45 +410,46 @@ class GenericDate extends FilterPluginBase {
       }
 
       // Render days.
-      $form[$identifier_filter]['days'] = [
-        '#type' => 'container',
-      ];
+      if ($this->value['date']['month']) {
+        $form[$identifier_filter]['days'] = [
+          '#type' => 'container',
+        ];
 
-      $days_output = '<strong>' . t('Days') . ':&nbsp;&nbsp;&nbsp;</strong>';
-      $form[$identifier_filter]['days']['output'] = [
-        '#type' => 'markup',
-        '#markup' => $days_output,
-      ];
+        $days_output = '<strong>' . t('Days') . ':&nbsp;&nbsp;&nbsp;</strong>';
+        $form[$identifier_filter]['days']['output'] = [
+          '#type' => 'markup',
+          '#markup' => $days_output,
+        ];
 
-      foreach ($dates['days'][$this->value['date']['year']][$this->value['date']['month']] as $day => $exist) {
-        if ($exist) {
-          $day_query_args = $url_query_args;
-          unset($day_query_args['CCYY']);
-          unset($day_query_args['CCYYMM']);
-          unset($day_query_args['CCYYMMDD']);
-          unset($day_query_args['CCYYWW']);
-          $day_query_args[$identifier] = 'CCYYMMDD_'.$this->value['date']['year'] . date('m', mktime(0, 0, 0, $this->value['date']['month'], 1)) . date('d', mktime(0, 0, 0, $this->value['date']['month'], $day));
-          $day_url = Url::fromUserInput($url_path, ['query' => $day_query_args]);
+        foreach ($dates['days'][$this->value['date']['year']][$this->value['date']['month']] as $day => $exist) {
+          if ($exist) {
+            $day_query_args = $url_query_args;
+            unset($day_query_args['CCYY']);
+            unset($day_query_args['CCYYMM']);
+            unset($day_query_args['CCYYMMDD']);
+            unset($day_query_args['CCYYWW']);
+            $day_query_args[$identifier] = 'CCYYMMDD_'.$this->value['date']['year'] . date('m', mktime(0, 0, 0, $this->value['date']['month'], 1)) . date('d', mktime(0, 0, 0, $this->value['date']['month'], $day));
+            $day_url = Url::fromUserInput($url_path, ['query' => $day_query_args]);
 
-          $form[$identifier_filter]['days'][$day] = [
-            '#type' => 'link',
-            '#title' => date('d', mktime(0, 0, 0, $this->value['date']['month'], $day)),
-            //          '#attributes' => ['class' => ['button']],
-            '#url' => $day_url,
-            '#suffix' => '&nbsp;&nbsp;&nbsp;',
-          ];
-        }
-        else {
-          $form[$identifier_filter]['days'][$day] = [
-            '#type' => 'markup',
-            '#markup' => date('d', mktime(0, 0, 0, $this->value['date']['month'], $day)),
-            '#suffix' => '&nbsp;&nbsp;&nbsp;',
-          ];
+            $form[$identifier_filter]['days'][$day] = [
+              '#type' => 'link',
+              '#title' => date('d', mktime(0, 0, 0, $this->value['date']['month'], $day)),
+              '#url' => $day_url,
+              '#suffix' => '&nbsp;&nbsp;&nbsp;',
+            ];
+            if ($this->value['arg_type'] == 'CCYYMMDD' && isset($this->value['date']['day']) && $this->value['date']['day'] == $day) {
+              $form[$identifier_filter]['days'][$day]['#attributes']['class'][] = 'active';
+            }
+          }
+          else {
+            $form[$identifier_filter]['days'][$day] = [
+              '#type' => 'markup',
+              '#markup' => date('d', mktime(0, 0, 0, $this->value['date']['month'], $day)),
+              '#suffix' => '&nbsp;&nbsp;&nbsp;',
+            ];
+          }
         }
       }
-
-
-
     }
   }
 
