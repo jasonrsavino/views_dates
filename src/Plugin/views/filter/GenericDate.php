@@ -493,7 +493,7 @@ class GenericDate extends FilterPluginBase {
 
     list($value['arg_type'], $value['arg_value']) = explode('_', $value['value']);
     if (!$value['arg_type']) {
-      return;
+      return $val;
     }
 
     switch ($value['arg_type']) {
@@ -639,6 +639,8 @@ class GenericDate extends FilterPluginBase {
       $view->build($display_id);
       // Get the SQL query.
       $query = $view->build_info['query'];
+      // Remove range if any.
+      $query->range(NULL, NULL);
       // Add that field what we're using for filtering.
       $query->addField($this->table, $this->realField);
       // Calculate that field index.
