@@ -304,21 +304,27 @@ class GenericDate extends FilterPluginBase {
 
     // Build the form and set the value based on the identifier.
     if (!empty($this->options['expose']['identifier'])) {
-      $identifier = $this->options['expose']['identifier'];
-      $this->value = $this->convertGenericDateValue($this->value);
+      // We need to apply url parameters for the case if we can get referer's path and query params.
+      // Basically it just can help to refresh the view with these parameters via ajax.
+      $url_path = isset($this->view->display_handler->options['exposed_form']['options']['referer_path']) ? $this->view->display_handler->options['exposed_form']['options']['referer_path'] : \Drupal::request()->getPathInfo();
+      $url_query_args = isset($this->view->display_handler->options['exposed_form']['options']['referer_query_array']) ? $this->view->display_handler->options['exposed_form']['options']['referer_query_array'] : \Drupal::request()->query->all();
 
-      $dates = $this->prepareAvailableDates();
-      $uri = \Drupal::request()->getRequestUri();
-      $uri_parsed = parse_url($uri);
-      $url_path = $uri_parsed['path'];
-      $url_query_args = [];
-      if (isset($uri_parsed['query'])) {
-        parse_str($uri_parsed['query'], $url_query_args);
+      $identifier = $this->options['expose']['identifier'];
+
+      // Set up value if it's coming from external sources.
+      if (isset($url_query_args[$identifier])) {
+        $this->value['value'] = $url_query_args[$identifier];
       }
+
+      // Convert value.
+      $this->value = $this->convertGenericDateValue($this->value);
+      // Prepare possible dates.
+      $dates = $this->prepareAvailableDates();
 
       $this->valueForm($form, $form_state);
       $identifier_filter = $identifier . '_filter';
 
+      // Generate the form.
       $form[$identifier_filter] = [
         '#type' => 'container',
         '#prefix' => '<div class="views-dates--generic-date-filter">',
