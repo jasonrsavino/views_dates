@@ -14,15 +14,6 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
  */
 function views_dates_views_data_alter(array &$data) {
 
-  // Add area handler to display links for generic dates.
-  $data['views']['generic_date_links'] = [
-    'title' => t('Generic Date links'),
-    'help' => t('Shows links for generic dates.'),
-    'area' => [
-      'id' => 'generic_date_links',
-    ],
-  ];
-
   // Get all entity types to next handling.
   $entity_types = \Drupal::entityTypeManager()->getDefinitions();
   // Entity types what we're going to skip.
